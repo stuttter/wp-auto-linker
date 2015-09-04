@@ -1,6 +1,6 @@
 # WP Auto Linker
 
-Associate key characters with URL patterns, and automatically link words in any output
+Automatically link keywords to users, tags, categories, pages, and more. Associate key characters with URL patterns, and automatically link words in any output.
 
 WP Auto Linker introduces a basic "hashtag" system, making it easy to tag, categorize, and automatically link to things in your content.
 
