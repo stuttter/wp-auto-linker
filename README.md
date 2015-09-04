@@ -14,10 +14,10 @@ WP Auto Linker introduces a basic "hashtag" system, making it easy to tag, categ
 
 ### What is all supported?
 
-* "@" to link to users
-* "#" to link to post tags
-* "$" to link to post categories
-* "^" to link to pages
+* `@` to link to users
+* `#` to link to post tags
+* `$` to link to post categories
+* `^` to link to pages
 
 ### Examples
 
