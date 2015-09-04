@@ -15,9 +15,13 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-// Include the autolinker library
+/**
+ * Include the Auto Linker files
+ *
+ * @since 0.1.1
+ */
 function wp_auto_linker() {
-	
+
 	// Get the plugin path
 	$plugin_path = plugin_dir_path( __FILE__ );
 
