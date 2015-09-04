@@ -1,6 +1,17 @@
 <?php
 
 /**
+ * The main Autolinker class for all linkers
+ *
+ * Can be used outside of WordPress by removing the `ABSPATH` check
+ *
+ * @package Autolinker/Includes/Classes/Autolinker
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+/**
  * The Autolinker
  *
  * This class is platform agnostic, and designed to allow for easy connecting
@@ -13,7 +24,7 @@
  * - ^ - Pages
  * - ! - FAQ pages
  *
- * @since Autolinker (0.1.0)
+ * @since Autolinker (0.1.1)
  */
 class Autolinker {
 
@@ -23,15 +34,26 @@ class Autolinker {
 	 *
 	 * @var array
 	 */
-	public $linkers = array();
+	protected $linkers = array();
 
 	/**
 	 * Construct the main Autolinker foundation
+	 *
+	 * Accepts an array of linkers
+	 *
+	 * @param array $linkers
 	 */
 	public function __contruct( $linkers = array() ) {
-		$this->setup_linkers( $linkers );
+		if ( ! empty( $linkers ) ) {
+			$this->setup_linkers( $linkers );
+		}
 	}
 
+	/**
+	 * Setup linkers
+	 *
+	 * @param array $linkers
+	 */
 	protected function setup_linkers( $linkers = array() ) {
 
 		// Bail if no linkers passed
@@ -41,15 +63,41 @@ class Autolinker {
 
 		// Loop through and setup linkers
 		foreach ( (array) $linkers as $linker ) {
-			$this->linkers[ $linker['char'] ] = new Autolink(
-				$linker['name'],
-				$linker['char'],
-				$linker['input'],
-				$linker['output']
-			);
+			$this->add_linker( $linker );
 		}
 	}
 
+	/**
+	 * Add a linker to the linkers array
+	 *
+	 * @param array $linker
+	 */
+	public function add_linker( $linker = array() ) {
+		$this->linkers[ $linker['char'] ] = new Autolink(
+			$linker['name'],
+			$linker['char'],
+			$linker['input'],
+			$linker['output']
+		);
+	}
+
+	/**
+	 * Remove a linker from the linkers array
+	 *
+	 * @param array $linker
+	 */
+	public function remove_linker( $linker = array() ) {
+		if ( isset( $linker['char'] ) && isset( $this->linkers[ $linker['char'] ] ) ) {
+			unset( $this->linkers[ $linker['char'] ] );
+		}
+	}
+
+	/**
+	 * Accept some input
+	 *
+	 * @param  string  $content
+	 * @param  string  $object
+	 */
 	protected function input( $content = '', $object = false ) {
 
 		// Get matches and bail if none exist
@@ -93,7 +141,14 @@ class Autolinker {
 		}
 	}
 
-	public function output( $content = '' ) {
+	/**
+	 * Return content
+	 *
+	 * @param  string $content
+	 *
+	 * @return string
+	 */
+	protected function output( $content = '' ) {
 
 		// Look for matches, and maybe filter if none are found
 		$matches = $this->find_matches( $content );
@@ -145,6 +200,13 @@ class Autolinker {
 		return $content;
 	}
 
+	/**
+	 * Find matches in a string
+	 *
+	 * @param  string  $content
+	 *
+	 * @return boolean
+	 */
 	protected function find_matches( $content = '' ) {
 
 		// Bail if no linkers to match
@@ -154,14 +216,21 @@ class Autolinker {
 
 		// Get the linkers to match
 		$matches = implode( array_keys( $this->linkers ), ',' );
-
-		// Setup the pattern to match against
-		$pattern = "/[{$matches}]+([A-Za-z0-9-_\.{$matches}]+)\b/";
+		$pattern = $this->get_match_pattern( $matches );
 
 		// Attempt to match our linkers to some text
 		preg_match_all( $pattern, $content, $matches );
 
 		// Use the matches that include prefix chars
 		return array_filter( $matches[0] );
+	}
+
+	/**
+	 * Setup the pattern to match against
+	 *
+	 * @return string
+	 */
+	protected function get_match_pattern( $matches = '' ) {
+		return "/[{$matches}]+([A-Za-z0-9-_\.{$matches}]+)\b/";
 	}
 }

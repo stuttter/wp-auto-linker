@@ -1,9 +1,20 @@
 <?php
 
 /**
+ * The main Autolinker base class for a single linker
+ *
+ * Can be used outside of WordPress by removing the `ABSPATH` check
+ *
+ * @package Autolinker/Includes/Classes/Autolink
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+/**
  * Single object used for storing the attributes for an automatic linker.
  *
- * @since Autolinker (0.1.0)
+ * @since 0.1.0
  */
 class Autolink {
 

@@ -1,109 +1,32 @@
 <?php
 
 /**
- * Plugin Name: Autolinker
- * Plugin URI:  http://wordpress.org/plugins/autolinker/
- * Description: Automatically link keywords to tags, categories, pages, and users
- * Author:      John James Jacoby
- * Author URI:  http://jjj.me
- * Version:     0.1.0
- * Text Domain: autolinker
- * Domain Path: /languages/
- * License:     GPLv2 or later (license.txt)
+ * Link WordPress object to post content
+ *
+ * @package Autolinker/Includes/Classes/WordPress
  */
 
-// Include the autolinker library
-include( __DIR__ . '/class-autolink.php'   );
-include( __DIR__ . '/class-autolinker.php' );
-
-/**
- * Setup the WordPress Autolinker
- *
- * @since Autolinker (0.1.0)
- *
- * @author johnjamesjacoby
- */
-function wp_setup_autolinkers() {
-	new WP_Autolinker;
-}
-add_action( 'plugins_loaded', 'wp_setup_autolinkers' );
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
 
 /**
  * The main WordPress Autolinker
  */
-final class WP_Autolinker extends Autolinker {
+class WP_Auto_Linker extends Autolinker {
 
 	/**
 	 * The main WordPress Autolinker class
 	 *
 	 * @since 0.1.0
 	 */
-	public function __construct() {
+	public function __construct( $linkers = array() ) {
 
 		// Hook into WordPress's actions
 		add_filter( 'the_content', array( $this, 'the_content' ) );
 		add_filter( 'save_post',   array( $this, 'save_post'   ) );
 
-		// Get the default Autolinks
-		parent::__contruct( $this->default_autolinks() );
-	}
-
-	/**
-	 * Get the default array of automatic link relationships
-	 *
-	 * @since 0.1.0
-	 *
-	 * @return array
-	 */
-	private function default_autolinks() {
-		return get_site_option( 'autolinkers', array(
-
-			// Author Archives
-			array(
-				'name'   => __( 'Author Archives', 'autolinker' ),
-				'char'   => '@',
-				'output' => array(
-					'filter_single' => array( $this, 'single_author_link' )
-				),
-				'input'  => false
-			),
-
-			// Post Tags
-			array(
-				'name'   => __( 'Post Tags', 'autolinker' ),
-				'char'   => '#',
-				'output' => array(
-					'filter_single' => array( $this, 'single_post_tag_link' )
-				),
-				'input' => array(
-					'filter_all'      => array( $this, 'save_all_post_tags'      ),
-					'filter_no_match' => array( $this, 'save_no_match_post_tags' )
-				)
-			),
-
-			// Categories
-			array(
-				'name'   => __( 'Categories', 'autolinker' ),
-				'char'   => '$',
-				'output' => array(
-					'filter_single' => array( $this, 'single_category_link' )
-				),
-				'input' => array(
-					'filter_all'      => array( $this, 'save_all_categories'      ),
-					'filter_no_match' => array( $this, 'save_no_match_categories' )
-				)
-			),
-
-			// Pages
-			array(
-				'name'   => __( 'Pages', 'autolinker' ),
-				'char'   => '^',
-				'output' => array(
-					'filter_single' => array( $this, 'single_page' )
-				),
-				'input' => false
-			)
-		) );
+		// Call the parent
+		parent::__contruct( $linkers );
 	}
 
 	/**
@@ -118,7 +41,7 @@ final class WP_Autolinker extends Autolinker {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type $post_id
 	 */
 	public function save_post( $post_id = false ) {
@@ -132,19 +55,39 @@ final class WP_Autolinker extends Autolinker {
 		}
 
 		// Run autolink callbacks on post content
-		parent::input( get_post_field( 'post_content', $post ), $post );
+		parent::input( $post->post_content, $post );
 	}
 
 	/** Input Functions *******************************************************/
 
+	/**
+	 * Save all tags in a post
+	 *
+	 * @param  array   $tags     Array of tags
+	 * @param  string  $content  Not used
+	 * @param  object  $post     The post being saved
+	 */
 	protected function save_all_post_tags( $tags = '', $content = '', $post = false ) {
 		$this->set_object_terms( get_post( $post ), $tags, 'post_tag' );
 	}
 
+	/**
+	 * Remove all tags from a post
+	 *
+	 * @param  string  $content  Not used
+	 * @param  object  $post     The post being saved
+	 */
 	protected function save_no_match_post_tags( $content = '', $post = false ) {
 		$this->set_object_terms( get_post( $post ), '', 'post_tag' );
 	}
 
+	/**
+	 * Save all categories in a post
+	 *
+	 * @param  array   $categories  Array of categories
+	 * @param  string  $content     Not used
+	 * @param  object  $post        The post being saved
+	 */
 	protected function save_all_categories( $categories = '', $content = '', $post = false ) {
 		$this->set_object_terms( get_post( $post ), $categories, 'category' );
 	}
@@ -152,19 +95,33 @@ final class WP_Autolinker extends Autolinker {
 	/**
 	 * No categories in this post
 	 *
-	 * @param string $content Not used
-	 * @param object $post The post being saved
+	 * @param  string  $content Not used
+	 * @param  object  $post    The post being saved
 	 */
 	protected function save_no_match_categories( $content = '', $post = false ) {
+
+		// Get the post
+		$post = get_post( $post );
 
 		// Bail if category is already set
 		if ( get_the_category( $post ) ) {
 			return;
 		}
+
+		// Get the default category
 		$default_category = get_term( get_option( 'default_category', 'Uncategorized' ), 'category' )->slug;
-		$this->set_object_terms( get_post( $post ), $default_category, 'category' );
+
+		// Set object terms
+		$this->set_object_terms( $post, $default_category, 'category' );
 	}
 
+	/**
+	 * Set terms for an object
+	 *
+	 * @param  object  $object
+	 * @param  array   $terms
+	 * @param  string  $taxonomy
+	 */
 	private function set_object_terms( $object, $terms = '', $taxonomy = '' ) {
 		if ( is_object_in_taxonomy( $object, $taxonomy ) ) {
 			wp_set_object_terms( $object->ID, $terms, $taxonomy, false );
@@ -173,15 +130,37 @@ final class WP_Autolinker extends Autolinker {
 
 	/** Output Functions ******************************************************/
 
+	/**
+	 * Get a single `post_tag` taxonomy link
+	 *
+	 * @param   string  $match
+	 *
+	 * @return  mixed
+	 */
 	protected function single_post_tag_link( $match = '' ) {
 		return $this->get_term_link( $match, 'post_tag' );
 	}
 
+	/**
+	 * Get a single `category` taxonomy link
+	 *
+	 * @param   string  $match
+	 *
+	 * @return  mixed
+	 */
 	protected function single_category_link( $match = '' ) {
 		return $this->get_term_link( $match, 'category' );
 	}
 
-	private function get_term_link( $match, $taxonomy ) {
+	/**
+	 * Get a single term by it's slug & taxonomy
+	 *
+	 * @param   string  $match
+	 * @param   string  $taxonomy
+	 *
+	 * @return  mixed
+	 */
+	protected function get_term_link( $match = '', $taxonomy = '' ) {
 		$object = get_term_by( 'slug', $match, $taxonomy );
 
 		return ( ! empty( $object ) )
@@ -189,7 +168,14 @@ final class WP_Autolinker extends Autolinker {
 			: false;
 	}
 
-	protected function single_author_link( $match = '' ) {
+	/**
+	 * Get a single user by it's slug
+	 *
+	 * @param   string $match
+	 *
+	 * @return  mixed
+	 */
+	protected function single_user_link( $match = '' ) {
 		$object = get_user_by( 'slug', $match );
 
 		return ( ! empty( $object->ID ) )
@@ -198,9 +184,11 @@ final class WP_Autolinker extends Autolinker {
 	}
 
 	/**
-	 * 
-	 * @param string $match
-	 * @return boolean
+	 * Get a single page by it's path
+	 *
+	 * @param   string $match
+	 *
+	 * @return  mixed
 	 */
 	protected function single_page( $match = '' ) {
 		$object = get_page_by_path( $match );
