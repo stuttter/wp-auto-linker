@@ -26,7 +26,7 @@ Hey everyone! @admin just created the ^about page. #tgif
 ```
 
 ```
-Hey @bob, can you triage the comments on posts in $kanyewest?.
+Hey @bob, can you triage the comments on posts in $kanyewest?
 ```
 
 ### Is this performant?
