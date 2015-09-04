@@ -21,13 +21,13 @@ WP Auto Linker introduces a basic "hashtag" system, making it easy to tag, categ
 
 ### Examples
 
-{{{
+```
 Hey everyone! @admin just created the ^about page. #tgif
-}}}
+```
 
-{{{
+```
 Hey @bob, can you triage the comments on posts in $kanyewest?.
-}}}
+```
 
 ### Is this performant?
 
