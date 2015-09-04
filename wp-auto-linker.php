@@ -5,11 +5,9 @@
  * Plugin URI:  http://wordpress.org/plugins/wp-auto-linker/
  * Description: Automatically link keywords to categories, tags, pages, users, and more
  * Author:      John James Jacoby
- * Author URI:  http://jjj.me
+ * Author URI:  https://profiles.wordpress.org/johnjamesjacoby/
  * Version:     0.1.1
- * Text Domain: autolinker
- * Domain Path: /languages/
- * License:     GPLv2 or later (license.txt)
+ * License:     GPL v2 or later
  */
 
 // Exit if accessed directly
