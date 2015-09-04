@@ -35,6 +35,10 @@ On input, it's pretty performant. All it does is parse through looking for taxon
 
 On output, it's maybe less-so, as `the_content` is filtered and links are applied. The more you link, the more objects need to be pulled up so they can be linked to. If you're caching objects and output, this shouldn't really matter to you. You are caching; right?
 
+### Can I extend this for my own objects?
+
+Yes! The main Autolinker class is flexible enough to be used on and for anything, and the `wp_auto_linker_setup_default_links()` function is a good example of how you might link your custom post-types & taxonomies together.
+
 ### Does this create new database tables?
 
 No. It uses WordPress's custom post-type, custom taxonomy, and metadata APIs.
@@ -45,8 +49,8 @@ No. All of WordPress's core database tables remain untouched.
 
 ### Where can I get support?
 
-The WordPress support forums: https://wordpress.org/tags/wp-event-calendar/
+The WordPress support forums: https://wordpress.org/plugins/tags/wp-auto-linker/
 
 ### Can I contribute?
 
-Yes, please! The number of users needing events and calendars in WordPress is always growing. Having an easy-to-use API and powerful set of functions is critical to managing complex WordPress installations. If this is your thing, please help us out!
+Yes, please!
