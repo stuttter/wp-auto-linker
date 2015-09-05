@@ -29,6 +29,32 @@ Hey everyone! @admin just created the ^about page. #tgif
 Hey @bob, can you triage the comments on posts in $kanyewest?
 ```
 
+### How do I create a custom linker?
+
+Something like:
+
+```
+// Instantiate the linker
+$linker = new WP_Auto_Linker();
+
+// Author Archives
+$linker->add_linker( array(
+	'name'   => esc_html__( 'Single Posts', 'wp-auto-linker' ),
+	'char'   => '!',
+	'output' => array(
+		'filter_single' => array( $linker, 'single_post_link' )
+	),
+	'input'  => false
+) );
+```
+
+* Name - Not used, but could be used for a UI
+* Char - The control character used on input & output
+* Output - Accepts an array of filter callbacks for single, all, or no matches
+* Input - Accepts an array of filter callbacks for single, all, or no matches
+
+For now, you'll want to create your own callbacks for input & output. As this matures, ideally we'll have a collection of them that can be conveniently hooked into for any post type, taxonomy, etc...
+
 ### Is this performant?
 
 On input, it's pretty performant. All it does is parse through looking for taxonomy terms to add to posts.
