@@ -231,6 +231,6 @@ class Autolinker {
 	 * @return string
 	 */
 	protected function get_match_pattern( $matches = '' ) {
-		return "/[{$matches}]+([A-Za-z0-9-_\.{$matches}]+)\b/";
+		return "/[{$matches}]+([A-Za-z0-9-_\.{$matches}]+)\b(?![^<]*>|[^<>]*<\/)/";
 	}
 }
